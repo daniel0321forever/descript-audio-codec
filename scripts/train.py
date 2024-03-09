@@ -205,14 +205,21 @@ def load(
 @timer()
 @torch.no_grad()
 def val_loop(batch, state, accel):
+    print("start val")
     state.generator.eval()
     batch = util.prepare_batch(batch, accel.device)
+    print("done preparing val batch")
     signal = state.val_data.transform(
         batch["signal"].clone(), **batch["transform_args"]
     )
+    print("done transforming val batch")
 
     out = state.generator(signal.audio_data, signal.sample_rate)
+    print("get generator output")
+    
     recons = AudioSignal(out["audio"], signal.sample_rate)
+    
+    print("end val")
 
     return {
         "loss": state.mel_loss(recons, signal),
@@ -224,7 +231,9 @@ def val_loop(batch, state, accel):
 
 @timer()
 def train_loop(state, batch, accel, lambdas):
+    print("training generator")
     state.generator.train()
+    print("training discrimiator")
     state.discriminator.train()
     output = {}
 
